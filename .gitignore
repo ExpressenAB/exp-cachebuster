@@ -1,0 +1,12 @@
+# Dependency directory and npm log
+node_modules
+npm-debug.log
+
+# Built package
+/*.tgz
+
+# Project files
+/.idea
+
+# OS X
+.DS_Store

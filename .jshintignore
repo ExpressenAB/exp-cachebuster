@@ -1,0 +1,4 @@
+node_modules
+/tmp
+/public
+app/assets/js/vendor/**
