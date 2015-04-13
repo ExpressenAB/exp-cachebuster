@@ -13,54 +13,71 @@ describe("CacheBuster", function () {
   before(createTempFiles);
 
   afterEach(function () {
-    calculateFileChecksum.clearCache();
+    calculateFileChecksum.clearChecksumCache();
   });
 
-  it("caches checksums by default", function (done) {
-    var cacheBuster = require("../")({baseDirs: ["tmp"]});
-    var spy = sinon.spy(fs, "readFileSync");
-    var checksum = cacheBuster.checksum(tmpCss);
+  describe("with fs spy", function () {
+    var spy;
 
-    sinon.assert.calledOnce(spy);
-    assert.equal(checksum, cacheBuster.checksum(tmpCss));
-    sinon.assert.calledOnce(spy);
+    beforeEach(function () {
+      spy = sinon.spy(fs, "readFileSync");
+    });
 
-    fs.readFileSync.restore();
-    done();
-  });
+    afterEach(function () {
+      fs.readFileSync.restore();
+    });
 
-  it("does not cache checksums when cacheChecksums is set to false", function (done) {
-    var cacheBuster = require("../")({baseDirs: ["tmp"], cacheChecksums: false});
-    var spy = sinon.spy(fs, "readFileSync");
+    it("caches checksums by default", function (done) {
+      var cacheBuster = require("../")({baseDirs: ["tmp"]});
+      var checksum = cacheBuster.checksum(tmpCss);
 
-    cacheBuster.checksum(tmpCss);
-    sinon.assert.calledOnce(spy);
-    cacheBuster.checksum(tmpCss);
-    sinon.assert.calledTwice(spy);
+      sinon.assert.calledOnce(spy);
+      assert.equal(checksum, cacheBuster.checksum(tmpCss));
+      sinon.assert.calledOnce(spy);
 
-    fs.readFileSync.restore();
-    done();
-  });
+      done();
+    });
 
-  it("supports dynamically disabling cache", function (done) {
-    var cacheBuster = require("../")({baseDirs: ["tmp"]});
-    var spy = sinon.spy(fs, "readFileSync");
+    it("recalculates checksums when cache has been cleared", function (done) {
+      var cacheBuster = require("../")({baseDirs: ["tmp"], cacheChecksums: false});
 
-    cacheBuster.checksum(tmpCss);
-    sinon.assert.calledOnce(spy);
-    cacheBuster.checksum(tmpCss);
-    sinon.assert.calledOnce(spy);
+      cacheBuster.checksum(tmpCss);
+      cacheBuster.clearChecksumCache();
+      cacheBuster.checksum(tmpCss);
+      sinon.assert.calledTwice(spy);
 
-    cacheBuster.setCacheChecksums(false);
-    cacheBuster.checksum(tmpCss);
-    sinon.assert.calledTwice(spy);
+      done();
+    });
 
-    cacheBuster.setCacheChecksums(true);
-    cacheBuster.checksum(tmpCss);
-    sinon.assert.calledTwice(spy);
+    it("does not cache checksums when cacheChecksums is set to false", function (done) {
+      var cacheBuster = require("../")({baseDirs: ["tmp"], cacheChecksums: false});
 
-    fs.readFileSync.restore();
-    done();
+      cacheBuster.checksum(tmpCss);
+      sinon.assert.calledOnce(spy);
+      cacheBuster.checksum(tmpCss);
+      sinon.assert.calledTwice(spy);
+
+      done();
+    });
+
+    it("supports dynamically disabling cache", function (done) {
+      var cacheBuster = require("../")({baseDirs: ["tmp"]});
+
+      cacheBuster.checksum(tmpCss);
+      sinon.assert.calledOnce(spy);
+      cacheBuster.checksum(tmpCss);
+      sinon.assert.calledOnce(spy);
+
+      cacheBuster.setCacheChecksums(false);
+      cacheBuster.checksum(tmpCss);
+      sinon.assert.calledTwice(spy);
+
+      cacheBuster.setCacheChecksums(true);
+      cacheBuster.checksum(tmpCss);
+      sinon.assert.calledTwice(spy);
+
+      done();
+    });
   });
 
   it("returns undefined if file is missing", function () {
