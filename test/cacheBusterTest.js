@@ -2,6 +2,7 @@ var fs = require("fs");
 var path = require("path");
 var sinon = require("sinon");
 var assert = require("assert");
+var expect = require("chai").expect;
 
 var calculateFileChecksum = require("../lib/calculateFileChecksum");
 
@@ -62,14 +63,9 @@ describe("CacheBuster", function () {
     done();
   });
 
-  it("throws Error if file is missing", function (done) {
+  it("returns undefined if file is missing", function () {
     var cacheBuster = require("../")({baseDirs: ["tmp"]});
-    try {
-      cacheBuster.checksum("does-not-exist");
-    } catch (e) {
-      assert.equal("Cannot find: does-not-exist in dirs: tmp", e.message);
-      done();
-    }
+    expect(cacheBuster.checksum("does-not-exist")).to.eql(undefined);
   });
 
   it("appends query parameter with checksum to file when bust is called", function (done) {
@@ -77,6 +73,16 @@ describe("CacheBuster", function () {
     var checksum = cacheBuster.checksum(tmpCss);
     assert.equal(tmpCss + "?c=" + checksum, cacheBuster.bust(tmpCss));
     done();
+  });
+
+  it("throws Error when trying to bust file that doesn't exist", function (done) {
+    var cacheBuster = require("../")({baseDirs: ["tmp"]});
+    try {
+      cacheBuster.bust("foo.bar");
+      done(new Error("Should've thrown!"));
+    } catch (e) {
+      done();
+    }
   });
 });
 
