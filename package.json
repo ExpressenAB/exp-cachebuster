@@ -34,6 +34,7 @@
     "supertest": "^0.15.0"
   },
   "scripts": {
+    "ci": "npm install && npm prune && npm test",
     "test": "mocha && jshint . && jscs ."
   },
   "files": [
