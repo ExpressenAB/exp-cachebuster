@@ -1,0 +1,4 @@
+--timeout 1000
+--reporter spec
+--no-exit
+--check-leaks
