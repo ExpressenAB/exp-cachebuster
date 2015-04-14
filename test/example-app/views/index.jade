@@ -1,0 +1,9 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    title exp-cachebuster example
+    link(rel="stylesheet", href="/css/" + bust("main.css"))
+    script(src="/js/" + bust("main.js"))
+  body
+    h1 Hello exp-cachebuster!

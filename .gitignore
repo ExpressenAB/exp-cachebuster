@@ -6,7 +6,8 @@ npm-debug.log
 /*.tgz
 
 # Project files
-/.idea
+.idea
+*.iml
 
 # OS X
 .DS_Store

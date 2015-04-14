@@ -1,32 +1,40 @@
 {
   "name": "exp-cachebuster",
-  "version": "1.0.0",
   "description": "Query parameter based cache buster with middleware.",
+  "version": "1.0.0",
   "author": "AB Kvällstidningen Expressen",
   "contributors": [
     "Gabriel Falkenberg <gabriel.falkenberg@gmail.com>",
     "Jens Carlén",
-    "Joel Abrahamsson <mail@joelabrahamsson.com>"
+    "Joel Abrahamsson <mail@joelabrahamsson.com>",
+    "Fredrik Ronnerberg <fredrik@ronnerberg.se>"
   ],
   "main": "lib/cacheBuster.js",
+  "repository": "git://github.com/ExpressenAB/exp-cachebuster.git",
+  "keywords": [
+    "cache",
+    "buster"
+  ],
+  "license": {
+    "type": "MIT",
+    "url": "http://github.com/ExpressenAB/exp-cachebuster/raw/master/LICENSE"
+  },
   "dependencies": {
     "on-headers": "^1.0.0"
   },
   "devDependencies": {
     "chai": "^2.1.0",
     "express": "^4.12.0",
+    "jade": "^1.9.2",
     "jscs": "^1.11.3",
     "jshint": "^2.6.0",
     "mocha": "^2.1.0",
     "nock": "^0.59.1",
+    "sinon": "^1.14.1",
     "supertest": "^0.15.0"
   },
   "scripts": {
     "test": "mocha && jshint . && jscs ."
-  },
-  "license": {
-    "type": "MIT",
-    "url": "http://github.com/ExpressenAB/exp-cachebuster/raw/master/LICENSE"
   },
   "files": [
     "lib",
