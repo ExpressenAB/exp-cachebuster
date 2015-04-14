@@ -1,117 +1,60 @@
-exp-config
-=========
+exp-cachebuster
+===============
 
-Loads configuration from JSON files from a `<app_root>/config` directory. The loaded configuration file can differ depending on the environment (determined by the `NODE_ENV` environment variable). It's also possible to override configuration values using a file named `.env` in `<app_root>` and by specifying them as environment variables.
+Yet another cache buster module. It consists of two parts:
 
-## Basic usage
+1. A `bust` function that you use from your views to append a checksum parameter to your client side resources.
+2. A `validateChecksumMiddleware` that verifies incoming checksums and, if it does not match the file's actual checksum, overwrites the `Cache-Control` header so that the file is not cached. 
+
+The module is meant to be used in an environment where an express application is run on several servers with a load balancer in front and where the application is updated one server at a time. In this scenario a user can request a page and get the HTML from application version X but when the request for a stylesheet or javascript is made these requests can end up being served from application version Y on another server. 
+
+When this particular situation happens it is very important to not serve these resources with long lived cache headers since this will pollute the CDN with client side resources _of the wrong version_. We could simply respond with a `404` in this situation but we prefer to actually serve the wrong resource version so that the user can at least see the site. On the next page navigation the user will most likely get the correct version. 
+
+
+## Usage
 
 ```
-npm install exp-config
+npm install exp-cachebuster --save
 ```
 
-Create a file named `development.json` in a folder named config in the application's root directory, such as:
-
-```json
-{
-  "someProp": "some value"
-}
-```
-
-In your code require `exp-config` and retrieve the configuration value:
-
+Where you setup your express application:
 
 ```javascript
-var config = require("exp-config");
-var configuredValue = config.someProp;
+var express = require("express);
+var app = express();
+
+var cacheBuster = require("exp-cachebuster")({baseDirs: ["public/css", "public/js"]});
+
+// Expose bust function to views
+app.locals.bust = cacheBuster.bust;
+
+// Setup the checksum validation middleware
+var validateChecksum = cacheBuster.validateChecksumMiddleware();
+
+app.use("/css", validateChecksum, express.static("public/css", {maxAge: "365d"}));
+app.use("/js", validateChecksum, express.static("public/js", {maxAge: "365d"}));
 ```
 
-You can also nest properties in the configuration files:
+In a view you might use the bust function like this:
 
-```json
-{
-  "server": {
-    "host": "google.com"
-  }
-}
+```jade
+link(rel="stylesheet", href="/css/" + bust("main.css"))
 ```
+
+See <https://github.com/ExpressenAB/exp-cachebuster/tree/master/test/example-app> for a complete example application.
+
+
+### Usage during development
+
+By default file checksums will be caches in memory since files are not expected to change during the lifetime of the started application. During development however you just want to reload the page and pick up any changes. The cache buster has the flag `cacheChecksums` for this purpose.
+
+The following snippet would disable checksum caching if `NODE_ENV` is set to `development`:
 
 ```javascript
-var config = require("exp-config");
-var configuredValue = config.server.host;
+var cacheBuster = require("exp-cachebuster")({
+  baseDirs: ["public/css", "public/js"],
+  cacheChecksums: process.env.NODE_ENV === "development"
+});
 ```
 
-Booleans need special care:
-
-```javascript
-var config = require("exp-config");
-if (config.boolean("flags.someFlag")) {
-  ...
-}
-```
-
-If you just use `config.flags.someFlag` to prevent the string `"false"` (which is truthy) to cause problems.
-
-
-## Different configuration files for different environments
-
-By default exp-config loads `<app_root>/config/development.json`. This behavior is typically used for local development and changed by specifying a different environment using the `NODE_ENV` environment variable, like this:
-
-```
-$ NODE_ENV=production node app 
-```
-
-When starting an application in this way `exp-config` will instead load `<app_root>/config/production.json`. Likewise, it's common to have a separate configuration file for tests, and using `NODE_ENV=test` when running them.
-
-## Overriding configuration values
-
-Individual values in the loaded configuration can be overridden by placing a file named `.env` in the application's root (`<app_root>/.env`). An example `.env` file can look like this:
-
-```
-someProp=some other value
-server.host=example.com
-flags.someFlag=true
-```
-
-It's also possible to override configuration by specifying them as environment variables when starting the application, like this:
-
-```
-$ someProp=value node app
-```
-
-To override nested properties with environment variables do like this:
-
-```
-$ env 'flags.someFlag=false' node .
-```
-
-### Precedence and values in tests
-
-Values are loaded with the following precedence:
-
-1. Environment variable
-2. .env file
-3. Configuration file
-
-In other words, environment variables take precedence over `.env` files and configuration files. However, there is one exception. When `NODE_ENV` equals `test` (`NODE_ENV=test`) environment variables and `.env` files are ignored.
-
-## Specifying the root folder
-
-By default `exp-config` tries to locate the config folder and the (optional) `.env` file by using `process.cwd()`. This works great when starting the application from it's root folder. However, sometimes that's not possible. In such cases the root path can be specified by setting an environment variable named `CONFIG_BASE_PATH`, like this:
-
-```
-$ CONFIG_BASE_PATH=/home/someuser/myapp/ node /home/someuser/myapp/app.js
-```
-
-## Usage pattern
-
-An application using `exp-config` typically have a directory structure like this:
-
-```
-.
-├── .env <-- Overrides for local development, not committed to source control
-├── config <-- Configuration files committed to source control
-|   ├── development.json <-- default file, used during local development
-|   ├── production.json <-- used in production by setting NODE_ENV
-|   └── test.json <-- used in tests by setting NODE_ENV
-└── app.js <-- the app
-```
+A advantage of using a cache buster during development is that any change to a client side resource will result in a new checksum which will lead to the browser fetching the new version.
