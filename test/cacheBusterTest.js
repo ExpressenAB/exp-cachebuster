@@ -16,7 +16,7 @@ describe("CacheBuster", function () {
     calculateFileChecksum.clearChecksumCache();
   });
 
-  describe("with fs spy", function () {
+  describe("With fs spy", function () {
     var spy;
 
     beforeEach(function () {
