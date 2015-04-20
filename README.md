@@ -51,7 +51,7 @@ By default file checksums will be caches in memory since files are not expected 
 The following snippet would disable checksum caching if `NODE_ENV` is set to `development`:
 
 ```javascript
-var cacheBuster = require("exp-cachebuster")(["public/css", "public/js"], process.env.NODE_ENV === "development");
+var cacheBuster = require("exp-cachebuster")(["public/css", "public/js"], process.env.NODE_ENV !== "development");
 ```
 
 A advantage of using a cache buster during development is that any change to a client side resource will result in a new checksum which will lead to the browser fetching the new version.
