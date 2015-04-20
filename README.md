@@ -42,3 +42,16 @@ link(rel="stylesheet", href="/css/" + bust("main.css"))
 ```
 
 See <https://github.com/ExpressenAB/exp-cachebuster/tree/master/test/example-app> for a complete example application.
+
+
+### Usage during development
+
+By default file checksums will be caches in memory since files are not expected to change during the lifetime of the started application. During development however you just want to reload the page and pick up any changes. The cache buster has the flag `cacheChecksums` for this purpose.
+
+The following snippet would disable checksum caching if `NODE_ENV` is set to `development`:
+
+```javascript
+var cacheBuster = require("exp-cachebuster")(["public/css", "public/js"], process.env.NODE_ENV === "development");
+```
+
+A advantage of using a cache buster during development is that any change to a client side resource will result in a new checksum which will lead to the browser fetching the new version.
