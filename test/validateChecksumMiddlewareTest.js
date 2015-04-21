@@ -42,6 +42,8 @@ describe("ValidateChecksumMiddleware", function () {
       request(server)
         .get(tmpFileName + "?c=invalid-checksum")
         .expect("Cache-Control", "no-cache, no-store, must-revalidate")
+        .expect("Pragma", "no-cache")
+        .expect("Expires", "-1")
         .expect(200, done);
     });
 
@@ -56,6 +58,8 @@ describe("ValidateChecksumMiddleware", function () {
       request(server)
         .get("/missing-file" + "?c=some-checksum")
         .expect("Cache-Control", "no-cache, no-store, must-revalidate")
+        .expect("Pragma", "no-cache")
+        .expect("Expires", "-1")
         .expect(404, done);
     });
   });
