@@ -1,13 +1,13 @@
 var express = require("express");
 var app = express();
 
-var cacheBuster = require("../../")({baseDirs: ["public/css", "public/js"]});
+var cacheBuster = require("../../")(["public/css", "public/js"]);
 
 // Expose bust function to views
 app.locals.bust = cacheBuster.bust;
 
 // Use cacheBuster middleware, set cacheChecksums to false in development config. Defaults to true.
-var validateChecksum = cacheBuster.validateChecksumMiddleware({cacheChecksums: true});
+var validateChecksum = cacheBuster.validateChecksumMiddleware();
 
 // Set up serving of static files using the middleware.
 // Note that the middleware does NOT include the mounting point when resolving the file path.
