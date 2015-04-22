@@ -20,7 +20,7 @@ npm install exp-cachebuster --save
 Where you setup your express application:
 
 ```javascript
-var express = require("express);
+var express = require("express");
 var app = express();
 
 var cacheBuster = require("exp-cachebuster")(["public/css", "public/js"]);
