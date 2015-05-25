@@ -30,6 +30,27 @@ describe("ValidateChecksumMiddleware", function () {
     cacheBuster = require("../")(["tmp"]);
   });
 
+  describe("without caching", function() {
+    beforeEach(function () {
+      cacheBuster = require("../")(["tmp"], false);
+      middleware = cacheBuster.validateChecksumMiddleware(checksums);
+    });
+
+    it ("returns headers for caching if checksum is correct", function(done) {
+      var server = express();
+      server.use(middleware);
+      server.get(tmpFileName, function (req, res) {
+        res.set("Cache-Control", "public, max-age=100");
+        res.sendFile(tmpFilePath);
+      });
+
+      request(server)
+          .get(tmpFileName + "?c=" + tmpFileChecksum)
+          .expect("Cache-Control", "public, max-age=100")
+          .expect(200, done);
+    });
+  });
+
   describe("Changes Cache-Control header", function () {
     it("sets the Cache-Control header to no-cache when checksums doesn't match", function (done) {
       var server = express();
