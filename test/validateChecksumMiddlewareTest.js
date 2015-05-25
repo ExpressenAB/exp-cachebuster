@@ -30,15 +30,17 @@ describe("ValidateChecksumMiddleware", function () {
     cacheBuster = require("../")(["tmp"]);
   });
 
-  describe("without caching", function() {
+  describe("without checksum caching", function() {
+    var cacheBusterWithoutCaching;
+
     beforeEach(function () {
-      cacheBuster = require("../")(["tmp"], false);
-      middleware = cacheBuster.validateChecksumMiddleware(checksums);
+      cacheBusterWithoutCaching = require("../")(["tmp"], false);
+      cacheBusterWithoutCaching.bust(tmpFileName);
     });
 
     it ("returns headers for caching if checksum is correct", function(done) {
       var server = express();
-      server.use(middleware);
+      server.use(cacheBusterWithoutCaching.validateChecksumMiddleware());
       server.get(tmpFileName, function (req, res) {
         res.set("Cache-Control", "public, max-age=100");
         res.sendFile(tmpFilePath);
@@ -51,8 +53,8 @@ describe("ValidateChecksumMiddleware", function () {
     });
   });
 
-  describe("Changes Cache-Control header", function () {
-    it("sets the Cache-Control header to no-cache when checksums doesn't match", function (done) {
+  describe("Sets the Cache-Control header to no-cache", function () {
+    it("when checksums doesn't match", function (done) {
       var server = express();
       server.use(middleware);
       server.get(tmpFileName, function (req, res) {
@@ -70,7 +72,7 @@ describe("ValidateChecksumMiddleware", function () {
         .expect(200, done);
     });
 
-    it("sets the Cache-Control header to no-cache when the requested checksum is not found", function (done) {
+    it("when the requested checksum is not found", function (done) {
       var server = express();
       server.use(middleware);
       server.get("/missing-file?c=probably-valid-checksum", function (req, res) {
@@ -89,8 +91,8 @@ describe("ValidateChecksumMiddleware", function () {
     });
   });
 
-  describe("Doesn't changes Cache-Control header", function () {
-    it("does nothing to Cache-Control header when checksum matches", function (done) {
+  describe("doesn't change Cache-Control header", function () {
+    it("when checksum matches", function (done) {
       var server = express();
       server.use(middleware);
       server.get(tmpFileName, function (req, res) {
@@ -104,7 +106,7 @@ describe("ValidateChecksumMiddleware", function () {
         .expect(200, done);
     });
 
-    it("does nothing to the Cache-Control header when query parameter c is missing", function (done) {
+    it("when query parameter c is missing", function (done) {
       var server = express();
       server.use(middleware);
       server.get(tmpFileName, function (req, res) {
