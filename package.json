@@ -1,13 +1,14 @@
 {
   "name": "exp-cachebuster",
   "description": "Query parameter based cache buster with middleware.",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "author": "AB Kvällstidningen Expressen",
   "contributors": [
     "Gabriel Falkenberg <gabriel.falkenberg@gmail.com>",
     "Jens Carlén",
     "Joel Abrahamsson <mail@joelabrahamsson.com>",
-    "Fredrik Ronnerberg <fredrik@ronnerberg.se>"
+    "Fredrik Ronnerberg <fredrik@ronnerberg.se>",
+    "Kristoffer Larsson <kristoffer.larsson@expressen.se>"
   ],
   "main": "lib/cacheBuster.js",
   "repository": "git://github.com/ExpressenAB/exp-cachebuster.git",
