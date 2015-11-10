@@ -41,10 +41,18 @@ describe("CacheBuster", function () {
     expect(cacheBuster.checksum("does-not-exist")).to.eql(undefined);
   });
 
-  it("appends query parameter with checksum to file when bust is called", function (done) {
+  it("renames file and adds checksum to file when bust is called", function (done) {
     var cacheBuster = require("../")(["tmp"]);
     var checksum = cacheBuster.checksum(tmpCss);
-    assert.equal(tmpCss + "?c=" + checksum, cacheBuster.bust(tmpCss));
+    expect(cacheBuster.bust(tmpCss)).to.equal("foo__c" + checksum + ".css");
+    done();
+  });
+
+  it("renames file and adds checksum to file when bust is called and file is in subfolder", function (done) {
+    var cacheBuster = require("../")(["test/example-app/public"]);
+    var tmpCssSub = "css/main.css";
+    var checksum = cacheBuster.checksum(tmpCssSub);
+    expect(cacheBuster.bust(tmpCssSub)).to.equal("css/main__c" + checksum + ".css");
     done();
   });
 

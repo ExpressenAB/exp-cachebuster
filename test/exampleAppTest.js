@@ -19,8 +19,8 @@ describe("Example App", function () {
   it("Serves busted client side resources", function (done) {
     request(exampleApp)
       .get("/")
-      .expect(/\/css\/main.css\?c=[0-9a-f]{32}/)
-      .expect(/\/js\/main.js\?c=[0-9a-f]{32}/)
+      .expect(/\/css\/main__c[0-9a-f]{32}\.css/)
+      .expect(/\/js\/main__c[0-9a-f]{32}\.js/)
       .end(done);
   });
 
