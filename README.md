@@ -4,11 +4,11 @@ exp-cachebuster
 Yet another cache buster module. It consists of two parts:
 
 1. A `bust` function that you use from your views to append a checksum parameter to your client side resources.
-2. A `validateChecksumMiddleware` that verifies incoming checksums and, if it does not match the file's actual checksum, overwrites the `Cache-Control` header so that the file is not cached. 
+2. A `validateChecksumMiddleware` that verifies incoming checksums and, if it does not match the file's actual checksum, overwrites the `Cache-Control` header so that the file is not cached.
 
-The module is meant to be used in an environment where an express application is run on several servers with a load balancer in front and where the application is updated one server at a time. In this scenario a user can request a page and get the HTML from application version X but when the request for a stylesheet or javascript is made these requests can end up being served from application version Y on another server. 
+The module is meant to be used in an environment where an express application is run on several servers with a load balancer in front and where the application is updated one server at a time. In this scenario a user can request a page and get the HTML from application version X but when the request for a stylesheet or javascript is made these requests can end up being served from application version Y on another server.
 
-When this particular situation happens it is very important to not serve these resources with long lived cache headers since this will pollute the CDN with client side resources _of the wrong version_. We could simply respond with a `404` in this situation but we prefer to actually serve the wrong resource version so that the user can at least see the site. On the next page navigation the user will most likely get the correct version. 
+When this particular situation happens it is very important to not serve these resources with long lived cache headers since this will pollute the CDN with client side resources _of the wrong version_. We could simply respond with a `404` in this situation but we prefer to actually serve the wrong resource version so that the user can at least see the site. On the next page navigation the user will most likely get the correct version.
 
 
 ## Usage
@@ -43,6 +43,15 @@ link(rel="stylesheet", href="/css/" + bust("main.css"))
 
 See <https://github.com/ExpressenAB/exp-cachebuster/tree/master/test/example-app> for a complete example application.
 
+##### Cache warm-up
+
+You can pre-calculate checksum for all resources via the warm-up function. This means that the cache will be ready before the view starts getting client requests and prevent potential cache misses.
+
+```javascript
+var cacheBuster = require("exp-cachebuster")(["public/css", "public/js"]);
+
+cacheBuster.warmUpChecksumCache(/* optionalDoneCallback */);
+```
 
 ### Usage during development
 
@@ -56,4 +65,4 @@ var cacheBuster = require("exp-cachebuster")(["public/css", "public/js"], proces
 
 A advantage of using a cache buster during development is that any change to a client side resource will result in a new checksum which will lead to the browser fetching the new version.
 
-Note that view or fragment caching can result in getting old client side resources. These should be disabled during development for the HTML that contains references to scripts, stylesheets etc. 
+Note that view or fragment caching can result in getting old client side resources. These should be disabled during development for the HTML that contains references to scripts, stylesheets etc.
