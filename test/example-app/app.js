@@ -3,6 +3,11 @@ var app = express();
 
 var cacheBuster = require("../../")(["public/css", "public/js"]);
 
+var optionalDoneCallback = function () {
+  // warm-up done
+};
+cacheBuster.warmUpChecksumCache(optionalDoneCallback);
+
 // Expose bust function to views
 app.locals.bust = cacheBuster.bust;
 
