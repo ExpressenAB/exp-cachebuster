@@ -24,6 +24,18 @@ describe("Warm-up", function () {
       done();
     });
   });
+
+  it("ignore sub-folders in static base folders", function (done) {
+    var cacheBuster = require("../")(["tmp"]);
+    var bustFn = sinon.spy(cacheBuster, "bust");
+
+    cacheBuster.warmUpChecksumCache(function () {
+      assert(!bustFn.calledWith("tmp1"));
+      assert(!bustFn.calledWith("tmp2"));
+      cacheBuster.bust.restore();
+      done();
+    });
+  });
 });
 
 function createTempFiles() {
